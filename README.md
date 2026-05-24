@@ -1,54 +1,60 @@
-#   🏦 LLM-transaction-categorizer
+# LLM Transaction Categorizer
 
-This script processes bank statements and categorizes transactions using an **LLM-based approach** via the **Groq API**. It automates financial transaction classification, making it easier to analyze personal finances.
+A Python script that reads raw bank statement CSVs and uses an LLM to automatically tag every transaction with a spending category — no manual rules, no regex pattern matching.
 
-## 🚀 Features
-- Loads bank statements from CSV files.
-- Uses **LLM (Llama 3.1-8B)** to categorize transactions.
-- Saves the categorized transactions into a new CSV file (`finances.csv`).
-- Supports multiple categories:  
-  - Dining Out, Payment Received, Health, Groceries, Education, Transport, Investing, Phone, Transfers, Rent, Shopping.
+---
 
-## 🛠 Installation
+## How it works
 
-### 1️⃣ Clone the Repository
-```sh
+1. Drops CSVs from any number of bank statements into a `statements/` folder
+2. Loads and normalises them into a single pandas DataFrame (parses dates, coerces numeric amounts, strips irrelevant columns)
+3. Sends each transaction description to **DeepSeek-R1 (70B)** via the Groq API using a LangChain prompt chain
+4. Writes the enriched data — original fields plus a `Category` column — to `finances.csv`
+
+Categories: `Dining Out`, `Groceries`, `Transport`, `Shopping`, `Health`, `Education`, `Rent`, `Phone`, `Investing`, `Transfers`, `Payment Received`
+
+---
+
+## Stack
+
+| | |
+|---|---|
+| Language | Python 3 |
+| LLM | DeepSeek-R1-Distill-Llama-70B |
+| Inference | Groq API |
+| Orchestration | LangChain |
+| Data | pandas |
+
+---
+
+## Getting Started
+
+**Prerequisites:** Python 3, a [Groq API key](https://console.groq.com)
+
+```bash
 git clone https://github.com/jv-schiavo/LLM-transaction-categorizer.git
 cd LLM-transaction-categorizer
-```
-### 2️⃣ Install Dependecies
-```sh
 pip install -r requirements.txt
 ```
-### 3️⃣ Set Up API kEY
-```sh
-Create a .env file in the project root and add:
 
+Create a `.env` file in the project root:
+
+```
 GROQ_API_KEY=your_api_key_here
-
-Replace your_api_key_here with your actual Groq API Key.
 ```
-## 📂 Usage
 
-### 1️⃣ Place Your Bank Statements in the `statements` Folder
-- Ensure your bank statements are in CSV format with necessary fields
+Drop your bank statement CSVs into the `statements/` folder — they should include at least `Transaction Description`, `Debit Amount`, and `Transaction Date` columns. Then run:
 
-(`Transaction Description`, `Debit Amount`, `Transaction Date`, etc).
-
-### 2️⃣ Run the Script
-```sh
-python categorize_transactions.py
+```bash
+python llm_finance.py
 ```
-### 3️⃣ Check the Categorized Transactions
 
-After running the script, a new CSV file (`finances.csv`) will be created with an addtional **Category** column.
+The categorized output lands in `finances.csv`.
 
-## 🛠 Future Improvements
-- Add support for more financial institutions and file formats.
-- Improve transaction classification with custom rules and user feedback.
-- Implement a local LLM model to remove dependency on external APIs.
-- Add a web interface or dashboard for better data visualization.
+---
 
-## 
+## What's next
 
-
+- Support for more CSV formats and bank layouts
+- Option to run a local model (Ollama) to remove the API dependency
+- A Streamlit dashboard for visualising spending by category over time
